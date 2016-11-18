@@ -1,7 +1,8 @@
 package com.bookdataanalyzer;
 
 import java.io.*;
-import java.util.*;
+
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 /**
  * Analyzes the text in the given file and produces an instance of FileDataStats that contains the information of interest 
@@ -13,13 +14,16 @@ public class FileDataAnalyzer
 {
   private FileDataStats fileDataStats;
   
-  private String[] lastTwoWords = null;
-
+  private static MaxentTagger posTagger;
+  
+  static
+  {
+    posTagger = new MaxentTagger("english-left3words-distsim.tagger");
+  }
+  
   public FileDataAnalyzer(File inputFile) throws IOException
   {
     fileDataStats = new FileDataStats();
-    lastTwoWords = new String[2];
-    
     processFile(inputFile);
   }
   
@@ -41,50 +45,21 @@ public class FileDataAnalyzer
     BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "UTF-8"));
     
     String line = null;
+    StringBuilder content = new StringBuilder();
     
     while((line = reader.readLine()) != null)
     {
-      processLine(line);
+      content.append(line).append("\n");
     }
     reader.close();
-    fileDataStats.truncateLowFrequencyValues();
-  }
-  
-  private void processLine(String line)
-  {
-    String processedLine = removePunctuations(line);
     
-    String[] words = processedLine.split("\\s+");
+    String textWithoutPunctuations = removePunctuations(content.toString());
     
-    for(int i = 0; i < words.length; i++)
-    {
-      fileDataStats.updateNGramCount(words[i]); // Update unigram count
-      
-      if(i < words.length - 1) // Update bigram count
-        fileDataStats.updateNGramCount(words[i] + " " + words[i + 1]);
-      
-      if(i < words.length - 2) // Update trigram count
-        fileDataStats.updateNGramCount(words[i] + " " + words[i + 1]+ " " + words[i + 2]);
-    }
+    String posTaggedText = posTagger.tagString(textWithoutPunctuations);
+    String[] posTaggedWords = posTaggedText.split("\\s+");
     
-    if(words.length > 0)
-    {
-      // Use the last 2 words from previous line to build 2-gram and 3-gram and update their corresponding counts
-      if(!isWordNullOrEmpty(lastTwoWords[1]))
-        fileDataStats.updateNGramCount(lastTwoWords[1] + " " + words[0]);
-
-      if(!isWordNullOrEmpty(lastTwoWords[1]) && !isWordNullOrEmpty(lastTwoWords[0]))
-        fileDataStats.updateNGramCount(lastTwoWords[0] + " " + lastTwoWords[1] + " "+ words[0]);
-    
-      // Update the last two words of this line to generate the n-grams for the next line
-      lastTwoWords[0] = (words.length >= 2) ? words[words.length - 2] : null;
-      lastTwoWords[1] = (words.length >= 1) ? words[words.length - 1] : null;
-    }
-    else
-    {
-      lastTwoWords[0] = null;
-      lastTwoWords[1] = null;
-    }
+    for(String posTaggedWord : posTaggedWords)
+      fileDataStats.updateWordAndPOSTagCount(posTaggedWord);
   }
   
   /**
@@ -95,12 +70,7 @@ public class FileDataAnalyzer
   private String removePunctuations(String content)
   { 
     String newContent = content.replaceAll("[\\?;:<>!#\\(\\)\\[\\]\\{\\}\"^~/\\.,]+", " ");
-    newContent = newContent.replaceAll("\\s+", " ").toLowerCase();
+    newContent = newContent.replaceAll("\\s+", " ");
     return newContent;
-  }
-  
-  private boolean isWordNullOrEmpty(String word)
-  {
-    return word == null || word.trim().isEmpty();
   }
 }

@@ -10,66 +10,41 @@ import java.util.Map.Entry;
  */
 public class FileDataStats
 {
-  private HashMap<String, Integer> trigramMap;
-  private HashMap<String, Integer> bigramMap;
   private HashMap<String, Integer> unigramMap;
   
   private int totalUnigrams;
-  private int totalBigrams;
-  private int totalTrigrams;
+  
+  private int totalNouns;
+  private int totalVerbs;
+  private int totalAdjectives;
   
   public FileDataStats()
   {
-    trigramMap = new HashMap<String, Integer>();
-    bigramMap = new HashMap<String, Integer>();
     unigramMap = new HashMap<String, Integer>();
   }
   
-  /**
-   * Updates the corresponding counter for the given n-gram
-   * @param nGram
-   */
-  public void updateNGramCount(String nGram)
+  public void updateWordAndPOSTagCount(String wordWithPosTag)
   {
-    if(nGram != null)
-    {
-      nGram = nGram.toLowerCase();
+    int lastIndexOfUnderscore = wordWithPosTag.lastIndexOf("_");
+    String word = wordWithPosTag.substring(0, lastIndexOfUnderscore);
+    String posTag = wordWithPosTag.substring(lastIndexOfUnderscore + 1);
     
-      int numWords = nGram.split("\\s+").length;
-
-      if(numWords == 1)
-      {
-        updatePhraseCountMap(nGram, unigramMap);
-        totalUnigrams++;
-      }
-      else
-      if(numWords == 2)
-      {
-        updatePhraseCountMap(nGram, bigramMap);
-        totalBigrams++;
-      }
-      else
-      if(numWords == 3)
-      {
-        updatePhraseCountMap(nGram, trigramMap);
-        totalTrigrams++;
-      }
-    }
+    if(posTag.equals("JJ") || posTag.equals("JJR") || posTag.equals("JJS"))
+      totalAdjectives++;
+    else
+    if(posTag.startsWith("VB"))
+      totalVerbs++;
+    else
+    if(posTag.equals("NN") || posTag.equals("NNS"))
+      totalNouns++;
+    
+    updatePhraseCountMap(word.toLowerCase(), unigramMap);
+    totalUnigrams++;
   }
   
   public HashMap<String, Integer> unigramMap()
   {
     return this.unigramMap;
-  }
-  
-  public HashMap<String, Integer> bigramMap()
-  {
-    return this.bigramMap;
-  }
-  
-  public HashMap<String, Integer> trigramMap()
-  {
-    return this.trigramMap;
   }
 
   public int totalUnigrams()
@@ -77,16 +52,21 @@ public class FileDataStats
     return this.totalUnigrams;
   }
   
-  public int totalBigrams()
+  public int totalVerbs()
   {
-    return this.totalBigrams;
+    return this.totalVerbs;
   }
   
-  public int totalTrigrams()
+  public int totalNouns()
   {
-    return this.totalTrigrams;
+    return this.totalNouns;
   }
   
+  public int totalAdjectives()
+  {
+    return this.totalAdjectives;
+  }
+ 
   /**
    * Dump the content of all the maps for debugging / testing
    */
@@ -94,10 +74,6 @@ public class FileDataStats
   {
     System.out.println("\n\nUnigram Total : " + totalUnigrams);
     printInfoHelper(unigramMap);
-    System.out.println("\n\nBigram Total : " + totalBigrams);
-    printInfoHelper(bigramMap);
-    System.out.println("\n\nTrigram Total : " + totalTrigrams);
-    printInfoHelper(trigramMap);
   }
   
   private void printInfoHelper(HashMap<String, Integer> phraseMap)
@@ -118,48 +94,5 @@ public class FileDataStats
     value = value + 1;
     
     phraseMap.put(phrase, value);  
-  }
-  
-  /**
-   * Truncate low frequency values
-   */
-  public void truncateLowFrequencyValues()
-  {
-    truncateLowFrequencyValues(unigramMap, "unigram");
-    truncateLowFrequencyValues(bigramMap, "bigram");
-    truncateLowFrequencyValues(trigramMap, "trigram");
-  }
-  
-  /**
-   * Helper method for truncateLowFrequencyValuess
-   * @param phraseMap
-   * @param mapType
-   */
-  private void truncateLowFrequencyValues(HashMap<String, Integer> phraseMap, String mapType)
-  {
-    int total = 0;
-    
-    if(mapType.equals("unigram"))
-      total = totalUnigrams;
-    else
-    if(mapType.equals("bigram"))
-      total = totalBigrams;
-    else
-    if(mapType.equals("trigram"))
-      total = totalTrigrams;
-    
-    Iterator<Entry<String, Integer>> iter = phraseMap.entrySet().iterator();
-    
-    int value;
-    Entry<String, Integer> entry;
-    
-    while(iter.hasNext())
-    {
-      entry = iter.next();
-      value = entry.getValue();
-      
-      if(value <= 1)
-        iter.remove();
-    }
   }
 }

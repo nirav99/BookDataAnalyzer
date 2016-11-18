@@ -5,7 +5,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- * Encapsulates the metrics for each author
+ * Encapsulates the metrics for a single author
  * @author nirav99
  *
  */
@@ -13,19 +13,17 @@ public class AuthorMetrics
 {
   private String authorName;
   
-  private HashMap<String, Integer> trigramMap;
-  private HashMap<String, Integer> bigramMap;
   private HashMap<String, Integer> unigramMap;
 	  
   private int totalUnigrams;
-  private int totalBigrams;
-  private int totalTrigrams;
+  
+  private int totalNouns;
+  private int totalVerbs;
+  private int totalAdjectives;
   
   public AuthorMetrics(String authorName)
   {
     this.authorName = authorName;
-    trigramMap = new HashMap<String, Integer>();
-    bigramMap = new HashMap<String, Integer>();
     unigramMap = new HashMap<String, Integer>();
   }
   
@@ -36,12 +34,32 @@ public class AuthorMetrics
   public void updateMetrics(FileDataStats fileDataStats)
   {
     totalUnigrams += fileDataStats.totalUnigrams();
-    totalBigrams += fileDataStats.totalBigrams();
-    totalTrigrams += fileDataStats.totalTrigrams();
+    
+    totalNouns += fileDataStats.totalNouns();
+    totalVerbs += fileDataStats.totalVerbs();
+    totalAdjectives += fileDataStats.totalAdjectives();
     
     updateMetricsHelper(fileDataStats.unigramMap(), this.unigramMap);
-    updateMetricsHelper(fileDataStats.bigramMap(), this.bigramMap);
-    updateMetricsHelper(fileDataStats.trigramMap(), this.trigramMap);
+  }
+  
+  public int totalWords()
+  {
+    return totalUnigrams;
+  }
+  
+  public int totalNouns()
+  {
+    return totalNouns;
+  }
+  
+  public int totalVerbs()
+  {
+    return totalVerbs;
+  }
+  
+  public int totalAdjectives()
+  {
+    return totalAdjectives;
   }
   
   /**
@@ -71,23 +89,23 @@ public class AuthorMetrics
   public void printInfo()
   {
     System.out.println("Author name : " + authorName);
+    System.out.println("Total Nouns : " + totalNouns + " Percentage = " + 1.0 * totalNouns / totalUnigrams * 100.0);
+    System.out.println("Total Verbs : " + totalNouns + " Percentage = " + 1.0 * totalVerbs / totalUnigrams * 100.0);
+    System.out.println("Total Adjectives : " + totalAdjectives + " Percentage = " + 1.0 * totalAdjectives / totalUnigrams * 100.0);
+    
     System.out.println("\n\nUnigram Total : " + totalUnigrams);
     printInfoHelper(unigramMap);
-    System.out.println("\n\nBigram Total : " + totalBigrams);
-    printInfoHelper(bigramMap);
-    System.out.println("\n\nTrigram Total : " + totalTrigrams);
-    printInfoHelper(trigramMap);
   }
   
   public void printInfo(PrintStream ps)
   {
     ps.println("Author name : " + authorName);
+    ps.println("Total Nouns : " + totalNouns + " Percentage = " + 1.0 * totalNouns / totalUnigrams * 100.0);
+    ps.println("Total Verbs : " + totalNouns + " Percentage = " + 1.0 * totalVerbs / totalUnigrams * 100.0);
+    ps.println("Total Adjectives : " + totalAdjectives + " Percentage = " + 1.0 * totalAdjectives / totalUnigrams * 100.0);
+
 	ps.println("\n\nUnigram Total : " + totalUnigrams);
 	printInfoHelper(unigramMap, ps);
-	ps.println("\n\nBigram Total : " + totalBigrams);
-    printInfoHelper(bigramMap, ps);
-    ps.println("\n\nTrigram Total : " + totalTrigrams);
-    printInfoHelper(trigramMap, ps);
   }
   
   private void printInfoHelper(HashMap<String, Integer> phraseMap)
@@ -104,5 +122,35 @@ public class AuthorMetrics
     
     for(Entry<String, Integer> entry : entrySet)
       ps.println(entry.getKey() + " --> " + entry.getValue());
+  }
+  
+  /**
+   * Truncate low frequency values
+   */
+  public void truncateLowFrequencyValues()
+  {
+    truncateLowFrequencyValues(unigramMap, totalUnigrams);
+  }
+  
+  /**
+   * Helper method for truncateLowFrequencyValues
+   * @param phraseMap
+   * @param mapType
+   */
+  private void truncateLowFrequencyValues(HashMap<String, Integer> phraseMap, int total)
+  {
+    Iterator<Entry<String, Integer>> iter = phraseMap.entrySet().iterator();
+    
+    int value;
+    Entry<String, Integer> entry;
+    
+    while(iter.hasNext())
+    {
+      entry = iter.next();
+      value = entry.getValue();
+      
+      if(1.0 * value / total * 100.0 <= 0.1)
+        iter.remove();
+    }
   }
 }
