@@ -69,8 +69,9 @@ public class FileDataAnalyzer
    */
   private String removePunctuations(String content)
   { 
-    String newContent = content.replaceAll("[\\?;:<>!#\\(\\)\\[\\]\\{\\}\"^~/\\.,]+", " ");
-    newContent = newContent.replaceAll("\\s+", " ");
+//    String newContent = content.replaceAll("[\\?;:<>!#\\(\\)\\[\\]\\{\\}\"^~/\\.,]+", " ");
+    String newContent = content.replaceAll("[;:<>#\\(\\)\\[\\]\\{\\}\"^~/]+", " ");
+    newContent = newContent.replaceAll("(\\s+|\u00A0)", " ");
     return newContent;
   }
 }

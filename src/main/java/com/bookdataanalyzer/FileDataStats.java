@@ -38,8 +38,11 @@ public class FileDataStats
     if(posTag.equals("NN") || posTag.equals("NNS"))
       totalNouns++;
     
-    updatePhraseCountMap(word.toLowerCase(), unigramMap);
-    totalUnigrams++;
+    if(word.matches("[A-Za-z_\\-]+"))
+    {
+      updatePhraseCountMap(word.toLowerCase(), unigramMap);
+      totalUnigrams++;
+    }
   }
   
   public HashMap<String, Integer> unigramMap()
