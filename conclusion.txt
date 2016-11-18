@@ -1,0 +1,19 @@
+I attempted to find if it is possible to differentiate between more plain-text and more "artistic" text.
+
+Thus, I applied Parts-Of-Speech tagging to the given texts and counted the number of nouns, verbs and adjectives.
+The results are listed in the summary file "summary.csv".
+
+My hope was that more adjectives should probably result in more artistic text.
+
+1) For most of the given text, the percentage of the adjectives to the total number of words for that author is between 5 to 7 percent.
+
+2) The author "Unknown" showed the least percent, about 4%. This is the story of Aladdin and the magic lamp. The language of that text
+   seems quite simple (plain) English.
+
+3) The percetange of adjectives is greater for authors like "WEBDuBois" (The souls of black folk), Phillis Wheatley (Religious and Moral poems)
+   and John Milton (Paradise Regained). Reading these text files, seems like they are either poems or have more old English text and generally
+   more artistic.
+   
+ Thus, with the preliminary experiment, it seems that there is some correlation between the number of adjectives in text and its artistic content.
+ It will be an interesting experiment to compare news articles and poems / more literature heavy "artistic" text and develop a classifier that
+ could potentially classify text as more plain-language or artistic.
