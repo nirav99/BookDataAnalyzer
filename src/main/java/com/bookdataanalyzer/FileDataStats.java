@@ -38,7 +38,7 @@ public class FileDataStats
     if(posTag.equals("NN") || posTag.equals("NNS"))
       totalNouns++;
     
-    if(word.matches("[A-Za-z_\\-]+"))
+    if(word.matches("[A-Za-z_\\-]+")) // Count only the words that have no numeric digits and are exclusively letters and -.
     {
       updatePhraseCountMap(word.toLowerCase(), unigramMap);
       totalUnigrams++;

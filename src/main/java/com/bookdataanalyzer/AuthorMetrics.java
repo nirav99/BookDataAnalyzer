@@ -15,7 +15,7 @@ public class AuthorMetrics
   
   private HashMap<String, Integer> unigramMap;
 	  
-  private int totalUnigrams;
+  private int totalUnigrams; // Also total number of words for each author
   
   private int totalNouns;
   private int totalVerbs;
@@ -133,7 +133,7 @@ public class AuthorMetrics
   }
   
   /**
-   * Helper method for truncateLowFrequencyValues
+   * Helper method for truncateLowFrequencyValues - removes words with frequency < 0.1%
    * @param phraseMap
    * @param mapType
    */

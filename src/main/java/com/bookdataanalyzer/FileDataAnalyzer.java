@@ -6,7 +6,7 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 /**
  * Analyzes the text in the given file and produces an instance of FileDataStats that contains the information of interest 
- * in the current file.
+ * collected from the current file.
  * @author nirav99
  *
  */
@@ -70,6 +70,7 @@ public class FileDataAnalyzer
   private String removePunctuations(String content)
   { 
 //    String newContent = content.replaceAll("[\\?;:<>!#\\(\\)\\[\\]\\{\\}\"^~/\\.,]+", " ");
+    // There's no need to remove common punctuation characters such as ? , . ! because POS tagger already separates them from text.
     String newContent = content.replaceAll("[;:<>#\\(\\)\\[\\]\\{\\}\"^~/]+", " ");
     newContent = newContent.replaceAll("(\\s+|\u00A0)", " ");
     return newContent;
